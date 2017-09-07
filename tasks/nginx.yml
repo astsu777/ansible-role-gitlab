@@ -1,0 +1,97 @@
+---
+- name: (GITLAB-CE) Install prerequisites
+  package:
+    name: dnsutils
+    state: latest
+
+- name: (GITLAB-CE) Change port of Gitlab-CE
+  lineinfile:
+    path: /etc/gitlab/gitlab.rb
+    regexp: '^external_url'
+    backrefs: yes
+    line: "external_url 'http://127.0.0.1:{{ gitlab_port }}'"
+    state: present
+  register: gitlabport
+
+- name: (GITLAB-CE) Reconfigure Gitlab-CE
+  command: gitlab-ctl reconfigure
+  when: gitlabport|changed
+
+- name: (GITLAB-CE) Create site in Nginx
+  template:
+    src: gitlab_nginx.conf
+    dest: /etc/nginx/sites-available/{{ gitlab_hostname }}.conf
+    force: no
+
+- name: (GITLAB-CE) Enable the site in Nginx
+  file:
+    src: /etc/nginx/sites-available/{{ gitlab_hostname }}.conf
+    path: /etc/nginx/sites-enabled/{{ gitlab_hostname }}.conf
+    state: link
+  notify: reload nginx
+
+- name: (GITLAB-CE) Stop Nginx to generate certificate
+  service:
+    name: nginx
+    state: stopped
+  changed_when: false
+
+- name: (GITLAB-CE) Make sure Certbot is installed
+  package:
+    name: certbot
+    state: latest
+
+- name: (GITLAB-CE) Check if the GITLAB-CE hostname can be solved
+  command: dig {{ gitlab_hostname }} +short
+  register: dig
+  changed_when: false
+
+- name: (GITLAB-CE) Generate certificate for GITLAB-CE
+  command: "certbot certonly -n -d {{ gitlab_hostname }} --agree-tos --standalone --email {{ certbot_email }}"
+  register: certbot
+  when: not dig.stdout == ""
+
+- name: (GITLAB-CE) Check if Let's Encrypt certificates exist
+  stat:
+    path: /etc/letsencrypt/live/{{ gitlab_hostname }}/fullchain.pem
+  register: cert
+
+- name: (GITLAB-CE) Copy default SSL certificates due to Certbot failure
+  copy:
+    src: ssl-cert-snakeoil.pem
+    dest: /etc/ssl/certs/ssl-cert-snakeoil.pem
+    owner: root
+    group: root
+    mode: 0644
+  when: not cert.stat.exists
+
+- name: (GITLAB-CE) Copy default SSL key due to Certbot failure
+  copy:
+    src: ssl-cert-snakeoil.key
+    dest: /etc/ssl/private/ssl-cert-snakeoil.key
+    owner: root
+    group: root
+    mode: 0644
+  when: not cert.stat.exists
+
+- name: (GITLAB-CE) Use default SSL certificate due to Certbot failure
+  lineinfile:
+    path: /etc/nginx/sites-available/{{ gitlab_hostname }}.conf
+    regexp: '^    ssl_certificate '
+    line: "    ssl_certificate /etc/ssl/certs/ssl-cert-snakeoil.pem;"
+    backrefs: yes
+  when: not cert.stat.exists
+
+- name: (GITLAB-CE) Use default SSL private key due to Certbot failure
+  lineinfile:
+    path: /etc/nginx/sites-available/{{ gitlab_hostname }}.conf
+    regexp: '^    ssl_certificate_key'
+    line: "    ssl_certificate_key /etc/ssl/private/ssl-cert-snakeoil.key;"
+    backrefs: yes
+  when: not cert.stat.exists
+
+- name: (GITLAB-CE) Start Nginx
+  service:
+    name: nginx
+    state: started
+  changed_when: false

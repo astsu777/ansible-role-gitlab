@@ -1,0 +1,9 @@
+---
+# Default variables for this role
+
+# GitLab configuration
+gitlab_hostname: gitlab.mysite.com
+gitlab_port: 8082
+
+# Let's Encrypt email address
+certbot_email: mymail@mail.com

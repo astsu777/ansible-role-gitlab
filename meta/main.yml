@@ -1,0 +1,18 @@
+galaxy_info:
+  author: Gaétan
+  description: Install and configure GitLab Community Edition
+
+  license: license (MIT, BSD)
+
+  min_ansible_version: 2.3
+
+  platforms:
+   - name: Linux
+     versions:
+     - all
+
+  galaxy_tags:
+    - linux
+    - gitlab
+
+  dependencies: |

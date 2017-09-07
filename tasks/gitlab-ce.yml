@@ -1,0 +1,34 @@
+---
+- name: (GITLAB-CE) Install prerequisites
+  package:
+    name: "{{ item }}"
+    state: latest
+  with_items:
+    - curl
+    - openssh-server
+    - ca-certificates
+
+- name: (GITLAB-CE) Check if GitLab-CE is already installed
+  stat:
+    path: /etc/gitlab
+  register: gitlab
+
+- name: (GITLAB-CE) Download GitLab-CE Deb script
+  get_url:
+    url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
+    dest: /tmp/gitlab-ce.deb.sh
+  when: not gitlab.stat.exists
+
+- name: (GITLAB-CE) Execute GitLab-CE Deb script
+  command: /bin/bash /tmp/gitlab-ce.deb.sh
+  when: not gitlab.stat.exists
+
+- name: (GITLAB-CE) Install GitLab Community Edition
+  package:
+    name: gitlab-ce
+    state: latest
+  register: gitlabupdate
+
+- name: (GITLAB-CE) Configure GitLab Community Edition
+  command: gitlab-ctl reconfigure
+  when: gitlabupdate|changed
