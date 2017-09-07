@@ -13,6 +13,8 @@ Without Nginx installed, this role performs the following actions:
 
 In this configuration, GitLab can be accessed via *http://<server_ip>*
 
+---
+
 
 If Nginx is installed (using the role above), this role performs the following actions:
 - Setup a repository for GitLab
