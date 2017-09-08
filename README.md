@@ -26,11 +26,6 @@ If Nginx is installed (using the role above), this role performs the following a
 When Nginx is installed, you can configure a specific hostname to access GitLab (see the variables below).
 
 
-Requirements
-------------
-
-No specific requirements for this role.
-
 Role Variables
 --------------
 
