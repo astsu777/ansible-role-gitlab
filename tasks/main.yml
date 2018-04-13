@@ -1,6 +1,6 @@
 ---
 # Install and configure GitLab Community Edition
-- include: gitlab-ce.yml
+- include_tasks: gitlab-ce.yml
 
 # Create a Website in Nginx if it is installed
 - name: Check if Nginx is installed
@@ -8,5 +8,5 @@
     path: /etc/nginx
   register: nginx
 
-- include: nginx.yml
+- include_tasks: nginx.yml
   when: nginx.stat.exists
