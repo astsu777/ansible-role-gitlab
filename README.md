@@ -1,6 +1,9 @@
 Ansible Role: GitLab Community Edition
 =========
 
+__**WARNING**__: due to GitLab CE system requirements, the playbook might fail if the target host does not 
+have enough RAM.
+
 This role installs and configure GitLab Community Edition. Note that this particular role can be used with the following (it is optional though):
 - [ansible-role-webserver](https://github.com/GSquad934/ansible-role-webserver)
 
