@@ -1,3 +1,5 @@
+# https://github.com/GSquad934/ansible-role-gitlab
+
 galaxy_info:
   author: Gaétan
   description: Install and configure GitLab Community Edition

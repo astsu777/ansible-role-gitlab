@@ -1,0 +1,28 @@
+---
+# Check for and apply any updates before proceeding
+- name: Check for updates
+  apt:
+    upgrade: yes
+    update_cache: yes
+    cache_valid_time: 86400 # 24 hours
+
+- name: Check if reboot required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required_file
+
+- name: Reboot if required
+  reboot:
+  when: reboot_required_file.stat.exists == true
+
+# Install and configure GitLab Community Edition
+- include_tasks: gitlab-ce.yaml
+
+# Create a Website in Nginx if it is installed
+- name: Check if Nginx is installed
+  stat:
+    path: /etc/nginx
+  register: nginx
+
+- include_tasks: nginx.yaml
+  when: nginx.stat.exists

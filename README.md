@@ -1,84 +1,46 @@
-Ansible Role: GitLab Community Edition
-=========
+# What is Vagrant?
 
-_**WARNING**_: due to GitLab CE system requirements, the playbook might fail if the target host does not 
-have enough RAM.
+Vagrant is a tool for building and managing virtual machine environments in a single workflow focusing on automation. It lowers environment setup time, increases production parity, and makes the "works on my machine" excuse a relic of the past.
 
-This role installs and configure GitLab Community Edition. Note that this particular role can be used with the following (it is optional though):
-- [ansible-role-webserver](https://github.com/GSquad934/ansible-role-webserver)
+Vagrant is used to set up one or more virtual machines by:
+1. Importing pre-made images called "boxes"
+2. Initializing VM-specific settings such as IP addresses, hostnames, port forwarding, memory, etc.
+3. Running provisioning software such as Ansible, Puppet, or Chef
 
+Note that Vagrant doesn't install software or set up the machine past loading the VM and configuring initial settings. **Think of it as a scripting engine for virtual machines**.
 
-Without Nginx installed, this role performs the following actions:
-- Setup a repository for GitLab
-- Install the latest version of GitLab Community Edition
-- Configure GitLab Community Edition with the default options
+While Vagrant ships out of the box with support for **VirtualBox**, **Hyper-V**, and **Docker**, Vagrant can also manage other types of machines using other **providers**.
 
+Alternate providers can offer different features that make more sense in your use case. For example, if you use Vagrant for any real work, **VMware providers** are recommended since they're well supported and generally more stable and performant than VirtualBox.
 
-In this configuration, GitLab can be accessed via *http://<server_ip>*
+## What does this demonstration do?
 
----
+1. Brings up one **Virtual Machine** locally: **Ubuntu 20.04 LTS**
+2. Uses **Ansible** to:
+   - Check for and apply any available OS updates
+   - Install **GitLab Community Edition**
+   - Create certificates using **Let's Encrypt**
+   - Configure **NGINX** to use **HTTPS**
 
+## Requirements
 
-If Nginx is installed (using the role above), this role performs the following actions:
-- Setup a repository for GitLab
-- Install the latest version of GitLab Community Edition
-- Configure GitLab Community Edition so it listens only on 127.0.0.1 on a chosen port (8082 by default)
-- Create and enables a site in Nginx to access GitLab on a specific hostname (HTTPS is enforced either via Let's Encrypt, or using some generic certificates)
+1. A **Terminal**:
+   - Windows users often choose one of the following: **Git-Bash** or **Cygwin** 
+   - Apple users already have a terminal somewhere
+   - Linux users already have a terminal somewhere
+2. **Vagrant** and **VirtualBox** must already be installed
+3. Add **192.168.56.10    gitlab.local** to your OS hosts file
 
+## Deploy the demo
 
-When Nginx is installed, you can configure a specific hostname to access GitLab (see the variables below).
-
-
-Role Variables
---------------
-
-If GitLab is used without Nginx, then no variables are actually required.
-
-When using Nginx, multiple variables can be configured.
-
-Here is how they can be configured:
-
-```
-gitlab_hostname: gitlab.mysite.com
-gitlab_port: 8082 *(this must be an unused port on your system)*
-certbot_email: mymail@mail.com *(email address used for validation by Let's Encrypt)*
+```bash
+$ git clone git@github.com:lastofthedinosaurs/vagrant-ansible-gitlab.git
+$ cd vagrant-ansible-gitlab
+$ vagrant up
 ```
 
-The variables above can be configured as host_vars for example.
+Typing `vagrant` from the command line will display a list of all available commands.
 
-Dependencies
-------------
+Be sure that you are in the same directory as the **Vagrantfile** when running these commands!
 
-*(Optional)* This role can depend on the following one if you wish to use Nginx as a Web server:
-- [ansible-role-webserver](https://github.com/GSquad934/ansible-role-webserver)
-
-
-If you install this role via Ansible-Galaxy, the name of the rolee is [*GSquad934.webserver*](https://github.com/GSquad934/ansible-role-webserver).
-
-
-However, if you already have Nginx installed, this role should still work.
-
-Example Playbook
-----------------
-
-Here is a simple example playbook to use this role:
-
-```
-hosts: gitlab-ce_srv
-user: myuser
-become: true
-roles:
-  - { role: gitlab-ce, tags: [ 'gitlab-ce' ] }
-```
-
-License
--------
-
-MIT / BSD
-
-Author Information
-------------------
-
-My name is Gaétan. You can follow me on [Twitter](https://twitter.com/gaetanict)
-
-Website: [ICT Pour Tous](https://www.ictpourtous.com)
+Use ` Vagrant destroy` in the same directory to stop and delete all traces of the demo when finished.

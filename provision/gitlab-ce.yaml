@@ -1,0 +1,7 @@
+- 
+  become: true
+  name: "Configure GitLab"
+  hosts: all
+  user: gitlab-user
+  roles:
+    - { role: gitlab-ce, tags: [ 'gitlab-ce' ] }

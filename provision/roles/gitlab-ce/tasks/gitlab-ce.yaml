@@ -7,6 +7,7 @@
     - curl
     - openssh-server
     - ca-certificates
+    - nginx
 
 - name: (GITLAB-CE) Check if GitLab-CE is already installed
   stat:
@@ -17,11 +18,11 @@
   get_url:
     url: https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh
     dest: /tmp/gitlab-ce.deb.sh
-  when: not gitlab.stat.exists
+  when: gitlab.stat.exists == false
 
 - name: (GITLAB-CE) Execute GitLab-CE Deb script
   command: /bin/bash /tmp/gitlab-ce.deb.sh
-  when: not gitlab.stat.exists
+  when: gitlab.stat.exists == false
 
 - name: (GITLAB-CE) Install GitLab Community Edition
   package:
@@ -31,4 +32,4 @@
 
 - name: (GITLAB-CE) Configure GitLab Community Edition
   command: gitlab-ctl reconfigure
-  when: gitlabupdate|changed
+  when: gitlabupdate.changed == true
